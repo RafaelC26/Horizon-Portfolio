@@ -1,29 +1,51 @@
-'use client'
-
-import React from 'react'
-import { motion } from 'framer-motion'
-import { ExternalLink, Users, User, Hexagon, Code2, Globe, Cpu } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { motion } from "framer-motion";
+import { User, Cpu, Code, ExternalLink, Users, ShieldAlert, Code2, Globe } from "lucide-react";
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectCardProps {
-  title: string
-  description: string
-  image: string
-  type: 'solo' | 'collab'
-  tags: string[]
-  link?: string
-  className?: string
+  title: string;
+  description: string;
+  image: any;
+  type: "solo" | "collab";
+  tags: string[];
+  link?: string;
+  className?: string;
+  onPortalTrigger?: () => void;
 }
 
-export function ProjectCard({ title, description, image, type, tags, link, className }: ProjectCardProps) {
-  const isCollab = type === 'collab'
-  const [isHovered, setIsHovered] = React.useState(false)
-  
-  // Theme colors
-  const accentColor = isCollab ? 'text-violet-400' : 'text-cyan-400'
-  const borderColor = isCollab ? 'border-violet-500/30' : 'border-cyan-500/30'
-  const glowShadow = isCollab ? 'shadow-[0_0_20px_rgba(139,92,246,0.1)]' : 'shadow-[0_0_20px_rgba(34,211,238,0.1)]'
-  const hoverBorder = isCollab ? 'group-hover:border-violet-400/60' : 'group-hover:border-cyan-400/60'
+export function ProjectCard({ 
+  title, 
+  description, 
+  image, 
+  type, 
+  tags, 
+  className,
+  onPortalTrigger
+}: ProjectCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
+  const isCollab = type === 'collab';
+
+  const handleVisitProject = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (onPortalTrigger) {
+      onPortalTrigger();
+      // Delay navigation to let the portal effect be seen
+      setTimeout(() => {
+        const id = title.toLowerCase().replace(/\s+/g, '-');
+        navigate(`/project/${id}`);
+      }, 1500);
+    }
+  };
+
+  const accentColor = isCollab ? 'text-violet-400' : 'text-cyan-400';
+  const borderColor = isCollab ? 'border-violet-500/30' : 'border-cyan-500/30';
+  const glowShadow = isCollab ? 'shadow-[0_0_20px_rgba(139,92,246,0.1)]' : 'shadow-[0_0_20px_rgba(34,211,238,0.1)]';
+  const hoverBorder = isCollab ? 'group-hover:border-violet-400/60' : 'group-hover:border-cyan-400/60';
 
   return (
     <motion.div
@@ -73,7 +95,7 @@ export function ProjectCard({ title, description, image, type, tags, link, class
           className="w-full h-full object-cover grayscale-[0.4] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out"
         />
         
-        {/* Tech Badges container - Floats over image */}
+        {/* Tech Badges container - Floats over image during hover */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
           {tags.slice(0, 3).map((tag, i) => (
             <motion.span 
@@ -89,22 +111,27 @@ export function ProjectCard({ title, description, image, type, tags, link, class
         </div>
       </div>
 
-      {/* Content Layer */}
-      <div className="p-6 relative z-20 flex-1 flex flex-col">
-        <h3 className="text-lg font-bold text-white/90 tracking-tight group-hover:text-white transition-colors">
-          {title}
-        </h3>
-        
-        {/* Expandable Content Area */}
+      {/* Content Area */}
+      <div className="p-6 flex flex-col gap-4">
+        <div>
+          <h3 className="text-xl font-black text-white tracking-tighter uppercase group-hover:text-cyan-400 transition-colors">
+            {title}
+          </h3>
+          <div className={cn("h-[2px] w-12 mt-1", isCollab ? "bg-violet-500/40" : "bg-cyan-500/40")} />
+        </div>
+
+        {/* Expandable Content */}
         <motion.div
-           animate={{ 
-             opacity: isHovered ? 1 : 0,
-             height: isHovered ? "auto" : 0,
-             marginTop: isHovered ? 12 : 0
-           }}
-           className="overflow-hidden"
+          initial={false}
+          animate={{ 
+            opacity: isHovered ? 1 : 0,
+            marginTop: isHovered ? 0 : -20,
+            display: isHovered ? 'block' : 'none'
+          }}
+          transition={{ duration: 0.3 }}
+          className="space-y-6"
         >
-          <p className="text-xs text-white/50 leading-relaxed font-light">
+          <p className="text-sm text-white/50 leading-relaxed font-light">
             {description}
           </p>
 
@@ -116,8 +143,8 @@ export function ProjectCard({ title, description, image, type, tags, link, class
                <Cpu className="w-3.5 h-3.5 text-white/20 hover:text-cyan-400/40 transition-colors" />
             </div>
             
-            <a 
-              href={link || "#"} 
+            <button 
+              onClick={handleVisitProject}
               className={cn(
                 "group/btn relative px-3 py-1.5 flex items-center gap-2 overflow-hidden rounded-lg transition-all duration-300",
                 isCollab ? "bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20" : "bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20"
@@ -127,7 +154,7 @@ export function ProjectCard({ title, description, image, type, tags, link, class
                 NEURAL_LINK
               </span>
               <ExternalLink className={cn("w-2.5 h-2.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform", accentColor)} />
-            </a>
+            </button>
           </div>
         </motion.div>
 
@@ -144,5 +171,5 @@ export function ProjectCard({ title, description, image, type, tags, link, class
       <div className={cn("absolute top-0 left-0 w-6 h-6 border-t border-l opacity-30 rounded-tl-[2rem]", isCollab ? "border-violet-400/40" : "border-cyan-400/40")} />
       <div className={cn("absolute bottom-0 right-0 w-6 h-6 border-b border-r opacity-30 rounded-br-[2rem]", isCollab ? "border-violet-400/40" : "border-cyan-400/40")} />
     </motion.div>
-  )
+  );
 }

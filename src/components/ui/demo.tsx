@@ -18,18 +18,10 @@ import secureVault from "../../assets/secure_vault_preview_1773631940742.png";
 
 export function SplineSceneBasic() {
   const [isSplashFinished, setIsSplashFinished] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [isPortalActive, setIsPortalActive] = useState(false);
 
   return (
-    <div className="w-full min-h-[3000px] relative bg-[#020617] overflow-x-hidden">
+    <div className="w-full min-h-[1500px] relative bg-[#020617] overflow-x-hidden">
       
       {/* Absolute container that keeps content centered in the viewport */}
       <div className="fixed inset-0 w-full h-screen flex items-center justify-center pointer-events-none">
@@ -40,6 +32,14 @@ export function SplineSceneBasic() {
           initial={{ opacity: 1 }}
           animate={{ opacity: isSplashFinished ? 0 : 1 }}
           transition={{ duration: 2, ease: "easeInOut" }} 
+        />
+
+        {/* Portal Flash Overlay */}
+        <motion.div 
+          className="absolute inset-0 z-[200] bg-[#020617] pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isPortalActive ? 1 : 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
         />
 
         {/* Particle Overlay (Centered Splash) */}
@@ -84,6 +84,7 @@ export function SplineSceneBasic() {
               trailOpacity={0.08}
               particleCount={400}
               speed={0.6}
+              isPortalActive={isPortalActive}
             />
           </div>
 
@@ -105,7 +106,10 @@ export function SplineSceneBasic() {
 
           {/* Orbital Projects Gallery */}
           <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
-            <CurvedMenu isSplashFinished={isSplashFinished} scrollY={scrollY} />
+            <CurvedMenu 
+              isSplashFinished={isSplashFinished} 
+              onPortalTrigger={() => setIsPortalActive(true)}
+            />
           </div>
 
           {/* Immersive HUD (Overlay Elements) */}

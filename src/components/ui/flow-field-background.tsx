@@ -32,7 +32,8 @@ export default function NeuralBackground({
   trailOpacity = 0.15,
   particleCount = 600,
   speed = 1,
-}: NeuralBackgroundProps) {
+  isPortalActive = false,
+}: NeuralBackgroundProps & { isPortalActive?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -54,49 +55,61 @@ export default function NeuralBackground({
 
     // --- PARTICLE CLASS ---
     class Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      age: number;
-      life: number;
+      x!: number;
+      y!: number;
+      vx!: number;
+      vy!: number;
+      age!: number;
+      life!: number;
       id: number;
 
       constructor(id: number) {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = 0;
-        this.vy = 0;
-        this.age = 0;
+        this.reset();
         this.id = id;
-        // Random lifespan to create natural recycling
-        this.life = Math.random() * 200 + 100; 
       }
 
       update() {
-        // 1. Flow Field Math (Simplex-ish noise)
-        const angle = (Math.cos(this.x * 0.005) + Math.sin(this.y * 0.005)) * Math.PI;
-        
-        // 2. Add force from flow field
-        this.vx += Math.cos(angle) * 0.2 * speed;
-        this.vy += Math.sin(angle) * 0.2 * speed;
+        if (isPortalActive) {
+          // Portal Logic: Accelerate towards the center
+          const dx = width / 2 - this.x;
+          const dy = height / 2 - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          // Force is inversely proportional to distance to create a suction effect
+          const force = 0.5;
+          this.vx += (dx / dist) * force;
+          this.vy += (dy / dist) * force;
+          
+          // Much higher speed for warp effect
+          this.x += this.vx * 2;
+          this.y += this.vy * 2;
 
-        // 3. Mouse Repulsion/Attraction
-        // (Disabled)
+          // If they reach the center, reset them to the edges
+          if (dist < 20) {
+            this.resetToEdges();
+          }
+        } else {
+          // 1. Flow Field Math (Simplex-ish noise)
+          const angle = (Math.cos(this.x * 0.005) + Math.sin(this.y * 0.005)) * Math.PI;
+          
+          // 2. Add force from flow field
+          this.vx += Math.cos(angle) * 0.2 * speed;
+          this.vy += Math.sin(angle) * 0.2 * speed;
 
-        // 4. Apply Velocity & Friction
-        this.vx *= 0.95; // Friction to stop infinite acceleration
-        this.vy *= 0.95;
-        
-        // 6. Wrap around screen
-        if (this.x < 0) this.x = width;
-        if (this.x > width) this.x = 0;
-        if (this.y < 0) this.y = height;
-        if (this.y > height) this.y = 0;
+          // 4. Apply Velocity & Friction
+          this.vx *= 0.95; 
+          this.vy *= 0.95;
+          
+          // 6. Wrap around screen
+          if (this.x < 0) this.x = width;
+          if (this.x > width) this.x = 0;
+          if (this.y < 0) this.y = height;
+          if (this.y > height) this.y = 0;
 
-        // Apply movement
-        this.x += this.vx;
-        this.y += this.vy;
+          // Apply movement
+          this.x += this.vx;
+          this.y += this.vy;
+        }
 
         // 5. Aging
         this.age++;
@@ -111,23 +124,43 @@ export default function NeuralBackground({
         this.vx = 0;
         this.vy = 0;
         this.age = 0;
-        this.life = Math.random() * 200 + 100;
+        this.life = Math.random() * 200 + 100; 
+      }
+
+      resetToEdges() {
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { this.x = 0; this.y = Math.random() * height; }
+        else if (side === 1) { this.x = width; this.y = Math.random() * height; }
+        else if (side === 2) { this.x = Math.random() * width; this.y = 0; }
+        else { this.x = Math.random() * width; this.y = height; }
+        this.vx = 0;
+        this.vy = 0;
+        this.age = 0;
       }
 
       draw(context: CanvasRenderingContext2D) {
         context.fillStyle = color;
-        // Fade in and out based on age, boosted alpha to make dots shine
         const alpha = Math.min(1, (1 - Math.abs((this.age / this.life) - 0.5) * 2) * 1.5);
-        context.globalAlpha = alpha;
-        context.shadowBlur = 4;
+        context.globalAlpha = isPortalActive ? 1 : alpha;
+        context.shadowBlur = isPortalActive ? 8 : 4;
         context.shadowColor = color;
-        context.fillRect(this.x, this.y, 2, 2); // Slightly larger
+        
+        // Elongate particles during portal effect (streaks)
+        if (isPortalActive && (Math.abs(this.vx) > 0.1 || Math.abs(this.vy) > 0.1)) {
+          context.beginPath();
+          context.moveTo(this.x, this.y);
+          context.lineTo(this.x - this.vx * 4, this.y - this.vy * 4);
+          context.strokeStyle = color;
+          context.lineWidth = 2;
+          context.stroke();
+        } else {
+          context.fillRect(this.x, this.y, 2, 2);
+        }
       }
     }
 
     // --- INITIALIZATION ---
     const init = () => {
-      // Handle High-DPI screens (Retina)
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -136,18 +169,18 @@ export default function NeuralBackground({
       canvas.style.height = `${height}px`;
 
       particles = [];
-      for (let i = 0; i < particleCount; i++) {
+      const count = isPortalActive ? particleCount * 2 : particleCount;
+      for (let i = 0; i < count; i++) {
         particles.push(new Particle(i));
       }
     };
 
     // --- ANIMATION LOOP ---
     const animate = () => {
-      // "Fade" effect: Instead of clearing the canvas, we draw a semi-transparent rect
-      // This creates the "Trails" look.
-      
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = `rgba(0, 0, 0, ${trailOpacity})`;
+      // Longer trails during portal
+      const currentTrail = isPortalActive ? 0.05 : trailOpacity;
+      ctx.fillStyle = `rgba(0, 0, 0, ${currentTrail})`;
       ctx.fillRect(0, 0, width, height);
 
       ctx.globalCompositeOperation = 'source-over';
@@ -159,39 +192,23 @@ export default function NeuralBackground({
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    // --- EVENT LISTENERS ---
+    // --- Start ---
+    init();
+    animate();
+
     const handleResize = () => {
       width = container.clientWidth;
       height = container.clientHeight;
       init();
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-
-    const handleMouseLeave = () => {
-        mouse.x = -1000;
-        mouse.y = -1000;
-    }
-
-    // Start
-    init();
-    animate();
-
     window.addEventListener("resize", handleResize);
-    window.addEventListener("mousemove", handleMouseMove); // Listen on window for broader interaction
-    container.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", handleMouseMove);
-      container.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [color, trailOpacity, particleCount, speed]);
+  }, [color, trailOpacity, particleCount, speed, isPortalActive]);
 
   return (
     <div ref={containerRef} className={cn("relative w-full h-full overflow-hidden mix-blend-screen", className)}>
