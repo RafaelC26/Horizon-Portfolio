@@ -1,0 +1,148 @@
+'use client'
+
+import React from 'react'
+import { motion } from 'framer-motion'
+import { ExternalLink, Users, User, Hexagon, Code2, Globe, Cpu } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+interface ProjectCardProps {
+  title: string
+  description: string
+  image: string
+  type: 'solo' | 'collab'
+  tags: string[]
+  link?: string
+  className?: string
+}
+
+export function ProjectCard({ title, description, image, type, tags, link, className }: ProjectCardProps) {
+  const isCollab = type === 'collab'
+  const [isHovered, setIsHovered] = React.useState(false)
+  
+  // Theme colors
+  const accentColor = isCollab ? 'text-violet-400' : 'text-cyan-400'
+  const borderColor = isCollab ? 'border-violet-500/30' : 'border-cyan-500/30'
+  const glowShadow = isCollab ? 'shadow-[0_0_20px_rgba(139,92,246,0.1)]' : 'shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+  const hoverBorder = isCollab ? 'group-hover:border-violet-400/60' : 'group-hover:border-cyan-400/60'
+
+  return (
+    <motion.div
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      animate={{ 
+        height: isHovered ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 450 : 550) : 320,
+        y: isHovered ? -10 : 0
+      }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      className={cn(
+        "group relative w-[280px] sm:w-[350px] bg-black/60 backdrop-blur-2xl border rounded-[2rem] overflow-hidden flex flex-col transition-all duration-500",
+        borderColor,
+        glowShadow,
+        hoverBorder,
+        className
+      )}
+    >
+      {/* HUD Scanline Effect */}
+      <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(6,182,212,0.02)_50%)] bg-[length:100%_4px] opacity-20 pointer-events-none" />
+
+      {/* Top Decorative Header */}
+      <div className="h-10 w-full flex items-center justify-between px-6 border-b border-white/5 relative bg-white/[0.02]">
+        <div className="flex items-center gap-2">
+          <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isCollab ? "bg-violet-400 shadow-[0_0_8px_#8b5cf6]" : "bg-cyan-400 shadow-[0_0_8px_#22d3ee]")} />
+          <span className="text-[8px] font-mono tracking-[0.2em] text-white/40 uppercase">
+             {isCollab ? "LINKED_NODE" : "SOLO_NODE"}
+          </span>
+        </div>
+        <motion.div 
+          animate={{ opacity: isHovered ? 1 : 0.4 }}
+          className="flex items-center gap-1.5 translate-y-[1px]"
+        >
+          {isCollab ? <Users className="w-3 h-3 text-violet-400/60" /> : <User className="w-3 h-3 text-cyan-400/60" />}
+          <span className={cn("text-[8px] font-bold tracking-widest uppercase", accentColor)}>
+            {isCollab ? "Convenio" : "Solo"}
+          </span>
+        </motion.div>
+      </div>
+
+      {/* Image Visualization Layer */}
+      <div className="relative h-48 sm:h-56 shrink-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-full object-cover grayscale-[0.4] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out"
+        />
+        
+        {/* Tech Badges container - Floats over image */}
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+          {tags.slice(0, 3).map((tag, i) => (
+            <motion.span 
+              key={i}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
+              transition={{ delay: 0.1 * i }}
+              className="px-2 py-0.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[8px] font-mono text-white/70 tracking-wider"
+            >
+              {tag}
+            </motion.span>
+          ))}
+        </div>
+      </div>
+
+      {/* Content Layer */}
+      <div className="p-6 relative z-20 flex-1 flex flex-col">
+        <h3 className="text-lg font-bold text-white/90 tracking-tight group-hover:text-white transition-colors">
+          {title}
+        </h3>
+        
+        {/* Expandable Content Area */}
+        <motion.div
+           animate={{ 
+             opacity: isHovered ? 1 : 0,
+             height: isHovered ? "auto" : 0,
+             marginTop: isHovered ? 12 : 0
+           }}
+           className="overflow-hidden"
+        >
+          <p className="text-xs text-white/50 leading-relaxed font-light">
+            {description}
+          </p>
+
+          {/* Interaction Footer */}
+          <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+            <div className="flex gap-2">
+               <Code2 className="w-3.5 h-3.5 text-white/20 hover:text-cyan-400/40 transition-colors" />
+               <Globe className="w-3.5 h-3.5 text-white/20 hover:text-cyan-400/40 transition-colors" />
+               <Cpu className="w-3.5 h-3.5 text-white/20 hover:text-cyan-400/40 transition-colors" />
+            </div>
+            
+            <a 
+              href={link || "#"} 
+              className={cn(
+                "group/btn relative px-3 py-1.5 flex items-center gap-2 overflow-hidden rounded-lg transition-all duration-300",
+                isCollab ? "bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20" : "bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20"
+              )}
+            >
+              <span className="text-[9px] font-mono font-bold tracking-[0.2em] text-white/80 uppercase active:scale-95 transition-transform">
+                NEURAL_LINK
+              </span>
+              <ExternalLink className={cn("w-2.5 h-2.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform", accentColor)} />
+            </a>
+          </div>
+        </motion.div>
+
+        {/* Compact Hint - Shown when not hovered */}
+        <motion.div
+          animate={{ opacity: isHovered ? 0 : 1 }}
+          className="mt-2 text-[8px] font-mono text-cyan-400/40 uppercase tracking-[0.3em]"
+        >
+          Click to initialize...
+        </motion.div>
+      </div>
+
+      {/* Ambient Corners */}
+      <div className={cn("absolute top-0 left-0 w-6 h-6 border-t border-l opacity-30 rounded-tl-[2rem]", isCollab ? "border-violet-400/40" : "border-cyan-400/40")} />
+      <div className={cn("absolute bottom-0 right-0 w-6 h-6 border-b border-r opacity-30 rounded-br-[2rem]", isCollab ? "border-violet-400/40" : "border-cyan-400/40")} />
+    </motion.div>
+  )
+}

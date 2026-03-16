@@ -9,6 +9,12 @@ import React, { useState } from "react";
 import ParticleText from "./particle-text";
 import { TextShimmer } from "./text-shimmer";
 import { CurvedMenu } from "./curved-menu";
+import { ProjectCard } from "./project-card";
+
+// Project Assets
+import cyberDashboard from "../../assets/cyber_dashboard_preview_1773631906924.png";
+import neuralNetwork from "../../assets/neural_network_preview_1773631922396.png";
+import secureVault from "../../assets/secure_vault_preview_1773631940742.png";
 
 export function SplineSceneBasic() {
   const [isSplashFinished, setIsSplashFinished] = useState(false);
@@ -23,14 +29,14 @@ export function SplineSceneBasic() {
   }, []);
 
   return (
-    <div className="w-full min-h-[2500px] relative bg-transparent overflow-x-hidden">
+    <div className="w-full min-h-[3000px] relative bg-[#020617] overflow-x-hidden">
       
       {/* Absolute container that keeps content centered in the viewport */}
       <div className="fixed inset-0 w-full h-screen flex items-center justify-center pointer-events-none">
         
-        {/* Warm Alabaster Background Fade-out */}
+        {/* Warm Alabaster Background Fade-out (Splash) */}
         <motion.div 
-          className="absolute inset-0 z-[50] bg-[#F5F5F0] pointer-events-none"
+          className="absolute inset-0 z-[100] bg-[#F5F5F0] pointer-events-none"
           initial={{ opacity: 1 }}
           animate={{ opacity: isSplashFinished ? 0 : 1 }}
           transition={{ duration: 2, ease: "easeInOut" }} 
@@ -38,7 +44,7 @@ export function SplineSceneBasic() {
 
         {/* Particle Overlay (Centered Splash) */}
         <motion.div 
-          className="absolute inset-0 z-[60] flex flex-col items-center justify-center"
+          className="absolute inset-0 z-[110] flex flex-col items-center justify-center"
           animate={{ opacity: isSplashFinished ? 0 : 1 }}
           transition={{ duration: 1 }}
         >
@@ -50,27 +56,17 @@ export function SplineSceneBasic() {
           />
           
           {/* Loading Indicator beneath HORIZON */}
-          <motion.div 
-            className="relative mt-[15vh] flex flex-col items-center"
-          >
+          <motion.div className="relative mt-[15vh] flex flex-col items-center">
             <TextShimmer 
               className='font-mono text-[10px] sm:text-xs tracking-[0.5em] text-[#1A2B3C]/40 [--base-color:rgba(26,43,60,0.3)] [--base-gradient-color:#1A2B3C]' 
               duration={2.5}
             >
               SYSTEM_INITIALIZATION_IN_PROGRESS
             </TextShimmer>
-            
-            {/* Subtle line below text */}
-            <motion.div 
-              className="h-[1px] bg-[#1A2B3C]/10 mt-4"
-              initial={{ width: 0 }}
-              animate={{ width: "200px" }}
-              transition={{ duration: 2, delay: 0.5 }}
-            />
           </motion.div>
         </motion.div>
 
-        {/* Main Content with 3D Entry Effect */}
+        {/* Main Immersive Layer */}
         <motion.div 
           className="absolute inset-0 z-[1] w-full h-full"
           initial={{ scale: 0.9, opacity: 0, filter: "blur(10px)" }}
@@ -81,101 +77,89 @@ export function SplineSceneBasic() {
           }}
           transition={{ duration: 2, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
-          {/* Glowing Neural Flow Background (behind Spline) */}
-          <div className="absolute inset-0 z-0 opacity-100">
+          {/* Background Visuals - Moved to negative z-index to be truly behind everything */}
+          <div className="absolute inset-0 z-[-1]">
             <NeuralBackground 
-              color="#22d3ee" // Cyan glowing lines
-              trailOpacity={0.08} // Strong trails
-              particleCount={1000} // Dense system
-              speed={1.0} // Smooth flow speed
+              color="#22d3ee"
+              trailOpacity={0.08}
+              particleCount={400}
+              speed={0.6}
             />
           </div>
 
-          {/* 3D Scene Backdrop */}
-          <div className="absolute inset-0 z-[1] flex items-center justify-center pointer-events-none">
-            {/* Scale the scene up and push it down, plus add a gradient mask so the base fades smoothly into the ice */}
+          {/* 3D Scene Backdrop - Increased opacity and solid blending to make it clearer */}
+          <div className="absolute inset-0 z-10 flex items-center justify-center">
             <div 
-              className="w-full h-full scale-[1.4] translate-y-24 sm:scale-[1.6] sm:translate-y-32 lg:scale-[1.4] lg:translate-y-20 pointer-events-auto"
+              className="w-full h-full scale-[1.0] lg:scale-[1.2] opacity-70 pointer-events-auto"
               style={{
-                WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)',
-                maskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)'
+                WebkitMaskImage: 'radial-gradient(circle, black 35%, transparent 85%)',
+                maskImage: 'radial-gradient(circle, black 35%, transparent 85%)'
               }}
             >
               <SplineScene 
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="w-full h-full"
-            />
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="w-full h-full"
+              />
             </div>
           </div>
 
-          {/* Assassin's Creed Style Curved Menu */}
-          <CurvedMenu isSplashFinished={isSplashFinished} scrollY={scrollY} />
+          {/* Orbital Projects Gallery */}
+          <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+            <CurvedMenu isSplashFinished={isSplashFinished} scrollY={scrollY} />
+          </div>
 
-          {/* Cybernetic Vignette Overlay */}
-          <div 
-            className="absolute inset-0 z-10 pointer-events-none" 
-            style={{ background: 'radial-gradient(ellipse at center, transparent 15%, rgba(0,10,30,0.6) 65%, rgba(0,0,10,1) 100%)' }} 
-          />
-
-          {/* Immersive UI Container */}
+          {/* Immersive HUD (Overlay Elements) */}
           <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-6 sm:p-10">
-            
-            {/* Top Header with Instant Logo */}
             <motion.header 
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+              animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : -20 }}
+              transition={{ duration: 0.8, delay: 1 }}
               className="w-full flex justify-between items-start pointer-events-auto"
             >
-              {/* Static Logo: Appears after splash without animation "flight" */}
-              <motion.div 
-                className="flex flex-col"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isSplashFinished ? 1 : 0 }}
-                transition={{ duration: 1 }}
-              >
-                <h1 className="text-2xl font-extrabold tracking-tighter text-white/90 font-['Plus_Jakarta_Sans']">
-                  HORIZON
-                </h1>
+              <div className="flex flex-col">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tighter text-white/90">HORIZON</h1>
                 <div className="h-[2px] w-8 bg-cyan-400 mt-1 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-              </motion.div>
-              
-              <div className="flex gap-4">
-                 <div className="w-12 h-12 border border-cyan-500/20 bg-cyan-950/20 backdrop-blur-md rounded-xl flex items-center justify-center relative group cursor-pointer hover:bg-cyan-900/40 hover:border-cyan-400/50 transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                    <ShieldAlert className="text-cyan-300 w-5 h-5 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                 <span className="text-[10px] font-mono text-cyan-400/60 tracking-widest uppercase">Subspace_Status</span>
+                 <div className="flex items-center gap-2">
+                    <span className="text-[12px] font-bold text-white uppercase tracking-tighter transition-all">Encrypted_Link</span>
+                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
                  </div>
               </div>
             </motion.header>
 
-            {/* Side Panels */}
-            <div className="flex-1 w-full flex justify-between items-center mt-4">
-              
-              {/* Center Spacer / Orbital Menu Area */}
-            <div className="flex-1 w-full" />
-          </div>
-
-            {/* Bottom Footer / Action Bar */}
-            <motion.footer 
+            {/* Bottom Status Layer */}
+            <motion.footer
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-              className="w-full flex justify-center mt-6 pointer-events-auto"
+              animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : 30 }}
+              transition={{ duration: 1, delay: 1.5 }}
+              className="w-full flex flex-col items-center gap-6"
             >
-              <div className="h-16 w-full max-w-xl border border-cyan-500/30 bg-black/60 backdrop-blur-2xl rounded-full relative overflow-hidden flex items-center justify-around px-8 shadow-[0_0_40px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(6,182,212,0.1)]">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[1px] bg-gradient-to-r from-transparent via-cyan-300 to-transparent" />
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-[10px] bg-cyan-500/30 blur-xl" />
-                
-                {/* Nav dots */}
-                {[1,2,3,4].map(i => (
-                  <div 
-                    key={i} 
-                    className={`cursor-pointer transition-all duration-300 flex items-center justify-center ${i === 1 ? 'w-10 h-2 bg-cyan-400 rounded-full shadow-[0_0_12px_#22d3ee]' : 'w-2 h-2 rounded-full bg-cyan-600/40 hover:bg-cyan-400 hover:scale-150 hover:shadow-[0_0_10px_#22d3ee]'}`} 
-                  />
-                ))}
-              </div>
+               {/* Scroll Indicator */}
+               <div className="flex flex-col items-center gap-3">
+                  <span className="text-[8px] font-mono text-cyan-400/40 tracking-[0.5em] uppercase">Scroll to Rotate Orbit</span>
+                  <div className="w-[1px] h-12 bg-gradient-to-t from-cyan-400/60 to-transparent" />
+               </div>
+
+               <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-10 relative overflow-hidden group pointer-events-auto cursor-help">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <div className="flex flex-col items-center">
+                     <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Grid_Nodes</span>
+                     <span className="text-xs font-bold text-cyan-400 tracking-widest">PRO_04</span>
+                  </div>
+                  <div className="w-[1px] h-6 bg-white/10" />
+                  <div className="flex flex-col items-center">
+                     <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Signal</span>
+                     <span className="text-xs font-bold text-cyan-400 tracking-widest text-shadow-glow">OPTIMAL</span>
+                  </div>
+               </div>
             </motion.footer>
 
+            {/* Subtle Vignette */}
+            <div className="absolute inset-0 z-[-1] pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,2,10,0.4) 60%, rgba(0,2,10,1) 100%)' }} />
           </div>
+
         </motion.div>
       </div>
     </div>
