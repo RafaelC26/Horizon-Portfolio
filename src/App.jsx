@@ -41,7 +41,7 @@ function App() {
           <Route path="/project/:id" element={<ProjectDetails />} />
         </Routes>
         {/* Grid de proyectos */}
-        <section id="main-grid" className="w-full max-w-6xl mx-auto py-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+        <section id="main-grid" className="w-full max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
           {/* ...grid content... */}
         </section>
         {/* ShaderAnimation removido */}

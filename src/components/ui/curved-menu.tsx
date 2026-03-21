@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { motion, useTransform, useScroll, useSpring } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useTransform, useScroll, useSpring, useMotionValue } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ProjectCard } from './project-card';
 
@@ -45,13 +45,50 @@ interface CurvedMenuProps {
 export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProps) {
   const { scrollY } = useScroll();
   const smoothScrollY = useSpring(scrollY, { stiffness: 60, damping: 25 });
-  
-  const rotation = useTransform(
-    smoothScrollY,
-    [0, 600],
-    [0, -90],
-    { clamp: true }
-  );
+  const rotation = useMotionValue(0);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const animationRef = useRef<number | null>(null);
+
+  // Detectar visibilidad del último grid
+  useEffect(() => {
+    const lastGrid = document.querySelector('[data-project-last]');
+    if (!lastGrid) return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        setAutoRotate(entry.isIntersecting);
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(lastGrid);
+    return () => observer.disconnect();
+  }, []);
+
+  // Animar rotación mientras el último grid esté visible
+  useEffect(() => {
+    if (autoRotate) {
+      const animate = () => {
+        rotation.set(rotation.get() + 0.8); // velocidad de giro
+        animationRef.current = requestAnimationFrame(animate);
+      };
+      animationRef.current = requestAnimationFrame(animate);
+    } else {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    }
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [autoRotate, rotation]);
+
+  // Si no está auto-rotando, seguir el scroll
+  useEffect(() => {
+    if (!autoRotate) {
+      const unsubscribe = smoothScrollY.on('change', (v) => {
+        const mapped = Math.max(Math.min((v / 600) * -90, 0), -90);
+        rotation.set(mapped);
+      });
+      return () => unsubscribe();
+    }
+  }, [autoRotate, smoothScrollY, rotation]);
 
   const radius = 900; 
   const perspectiveValue = 1600; 
@@ -72,7 +109,7 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProp
           {PROJECTS.map((project, idx) => {
             const itemSpacing = isMobile ? 55 : 45; 
             const baseAngle = idx * itemSpacing;
-            
+            const isLast = idx === PROJECTS.length - 1;
             return (
               <ProjectMenuItem 
                 key={idx} 
@@ -81,6 +118,7 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProp
                 scrollRotation={rotation} 
                 radius={radius}
                 onPortalTrigger={onPortalTrigger}
+                isLast={isLast}
               />
             );
           })}
@@ -90,7 +128,7 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProp
   );
 }
 
-function ProjectMenuItem({ project, baseAngle, scrollRotation, radius, onPortalTrigger }: any) {
+function ProjectMenuItem({ project, baseAngle, scrollRotation, radius, onPortalTrigger, isLast }: any) {
   const angle = useTransform(scrollRotation, (v: number) => baseAngle + v);
   const x = useTransform(angle, (a: number) => Math.sin(a * (Math.PI / 180)) * radius);
   const z = useTransform(angle, (a: number) => Math.cos(a * (Math.PI / 180)) * radius - radius);
@@ -114,6 +152,7 @@ function ProjectMenuItem({ project, baseAngle, scrollRotation, radius, onPortalT
       <ProjectCard 
         {...project} 
         onPortalTrigger={() => onPortalTrigger(project.id)}
+        data-project-last={isLast ? 'true' : undefined}
       />
     </motion.div>
   );
