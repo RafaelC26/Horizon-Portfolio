@@ -49,8 +49,8 @@ export function ProjectCard({
 
   return (
     <motion.div
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       animate={{ 
         height: isHovered ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 450 : 550) : 320,
         y: isHovered ? -10 : 0

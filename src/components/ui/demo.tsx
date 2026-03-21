@@ -10,6 +10,7 @@ import ParticleText from "./particle-text";
 import { TextShimmer } from "./text-shimmer";
 import { CurvedMenu } from "./curved-menu";
 import { ProjectCard } from "./project-card";
+import { ShaderAnimation } from "@/components/ui/shader-lines";
 
 // Project Assets
 import cyberDashboard from "../../assets/cyber_dashboard_preview_1773631906924.png";
@@ -168,4 +169,15 @@ export function SplineSceneBasic() {
       </div>
     </div>
   );
+}
+
+export default function DemoOne() {
+  return (
+    <div className="relative flex h-[650px] w-full flex-col items-center justify-center overflow-hidden rounded-xl">
+      <ShaderAnimation/>
+      <span className="pointer-events-none z-10 text-center text-7xl leading-none font-semibold tracking-tighter whitespace-pre-wrap text-white">
+        Shader Lines
+      </span>
+    </div>
+  )
 }
