@@ -46,6 +46,7 @@ const connections = [
   { from: "js", to: "py", color: "#a855f7" },
   { from: "js", to: "go", color: "#a855f7" },
   { from: "js", to: "rust", color: "#a855f7" },
+  { from: "js", to: "react", color: "#a855f7" },
 
   // Frameworks & Runtimes (Cyan/Green)
   { from: "react", to: "vue", color: "#22d3ee" },

@@ -54,7 +54,7 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
     const centerThreshold = 2 + 50; 
     const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
     const handleWheel = (e: WheelEvent) => {
-      const delta = e.deltaY * 0.1; 
+      const delta = -e.deltaY * 0.1; 
       const prevRotation = rotationRef.current;
       rotationRef.current = Math.max(minRotation, Math.min(0, rotationRef.current + delta));
       rotation.set(rotationRef.current);
