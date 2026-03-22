@@ -170,8 +170,8 @@ const ScrollExpandMedia = ({
       className='transition-colors duration-700 ease-in-out overflow-x-hidden'
       style={{ pointerEvents: mediaFullyExpanded ? 'auto' : 'none' }}
     >
-      <section className='relative flex flex-col items-center justify-start min-h-[100dvh]'>
-        <div className='relative w-full flex flex-col items-center min-h-[100dvh]'>
+      <section className='relative flex flex-col items-center justify-start min-h-[200dvh]'>
+        <div className='relative w-full flex flex-col items-center min-h-[200dvh]'>
           <motion.div
             className='absolute inset-0 z-0 h-full'
             initial={{ opacity: 0 }}

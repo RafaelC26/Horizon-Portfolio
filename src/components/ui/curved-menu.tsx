@@ -43,52 +43,24 @@ interface CurvedMenuProps {
 }
 
 export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProps) {
-  const { scrollY } = useScroll();
-  const smoothScrollY = useSpring(scrollY, { stiffness: 60, damping: 25 });
   const rotation = useMotionValue(0);
-  const [autoRotate, setAutoRotate] = useState(false);
-  const animationRef = useRef<number | null>(null);
-
-  // Detectar visibilidad del último grid
+  const rotationRef = useRef(0);
+  // Rotación infinita real con la rueda del mouse
   useEffect(() => {
-    const lastGrid = document.querySelector('[data-project-last]');
-    if (!lastGrid) return;
-    const observer = new window.IntersectionObserver(
-      ([entry]) => {
-        setAutoRotate(entry.isIntersecting);
-      },
-      { threshold: 0.2 }
-    );
-    observer.observe(lastGrid);
-    return () => observer.disconnect();
-  }, []);
-
-  // Animar rotación mientras el último grid esté visible
-  useEffect(() => {
-    if (autoRotate) {
-      const animate = () => {
-        rotation.set(rotation.get() + 0.8); // velocidad de giro
-        animationRef.current = requestAnimationFrame(animate);
-      };
-      animationRef.current = requestAnimationFrame(animate);
-    } else {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    }
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    const itemSpacing = (typeof window !== 'undefined' && window.innerWidth < 768) ? 55 : 45;
+    const maxRotation = 0; // No puede bajar de 0° (solo subir)
+    // El máximo retroceso es el negativo del ángulo base del primer grid (0)
+    // Si quieres que nunca se pase del primer grid, el máximo es 0
+    const handleWheel = (e: WheelEvent) => {
+      const delta = e.deltaY * 0.12;
+      rotationRef.current = Math.min(maxRotation, rotationRef.current + delta);
+      rotation.set(rotationRef.current);
     };
-  }, [autoRotate, rotation]);
-
-  // Si no está auto-rotando, seguir el scroll
-  useEffect(() => {
-    if (!autoRotate) {
-      const unsubscribe = smoothScrollY.on('change', (v) => {
-        const mapped = Math.max(Math.min((v / 600) * -90, 0), -90);
-        rotation.set(mapped);
-      });
-      return () => unsubscribe();
-    }
-  }, [autoRotate, smoothScrollY, rotation]);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [rotation]);
 
   const radius = 900; 
   const perspectiveValue = 1600; 
