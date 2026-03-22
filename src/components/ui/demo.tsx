@@ -2,6 +2,7 @@
 
 import { SplineScene } from "@/components/ui/splite";
 import NeuralBackground from "@/components/ui/flow-field-background";
+import ShaderBackground from "@/components/ui/shader-background";
 import { motion } from "framer-motion";
 import { Hexagon, Terminal, User, Cpu, ShieldAlert, CpuIcon, Code, Mail } from "lucide-react";
 
@@ -81,19 +82,41 @@ export function SplineSceneBasic() {
         >
           {/* Background Visuals - Moved to negative z-index to be truly behind everything */}
           <div className="absolute inset-0 z-[-1]">
-            <NeuralBackground 
-              color="#22d3ee"
-              trailOpacity={0.08}
-              particleCount={400}
-              speed={0.6}
-              isPortalActive={isPortalActive}
-            />
+            <div className="absolute inset-0 w-full h-full">
+              <motion.div
+                initial={{ opacity: 1 }}
+                animate={{ opacity: robotBig ? 0 : 1 }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
+                className="absolute inset-0 w-full h-full"
+                style={{ pointerEvents: 'none' }}
+              >
+                <NeuralBackground 
+                  color={robotBig ? "#a259e6" : "#22d3ee"}
+                  trailOpacity={0.08}
+                  particleCount={400}
+                  speed={0.6}
+                  isPortalActive={isPortalActive}
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: robotBig ? 1 : 0 }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
+                className="absolute inset-0 w-full h-full"
+                style={{ pointerEvents: 'none' }}
+              >
+                <ShaderBackground />
+              </motion.div>
+            </div>
           </div>
 
           {/* 3D Scene Backdrop - Increased opacity and solid blending to make it clearer */}
           <div className="absolute inset-0 z-10 flex items-center justify-center">
             <motion.div
-              className="w-full h-full opacity-70 pointer-events-auto"
+              className={
+                'w-full h-full pointer-events-auto ' +
+                (robotBig ? 'opacity-100' : 'opacity-70')
+              }
               animate={robotBig ? { scale: 2.2, x: '-35%', y: '32%' } : { scale: 1.0, x: 0, y: 0 }}
               transition={{ type: 'spring', stiffness: 80, damping: 20 }}
               style={{
@@ -131,13 +154,28 @@ export function SplineSceneBasic() {
             >
               <div className="flex flex-col">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-tighter text-white/90">HORIZON</h1>
-                <div className="h-[2px] w-8 bg-cyan-400 mt-1 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                <div
+                  className={
+                    `h-[2px] w-8 mt-1 ` +
+                    (robotBig
+                      ? 'bg-[#a259e6] shadow-[0_0_8px_rgba(162,89,230,0.8)]'
+                      : 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]')
+                  }
+                />
               </div>
               <div className="flex flex-col items-end gap-1">
-                 <span className="text-[10px] font-mono text-cyan-400/60 tracking-widest uppercase">Subspace_Status</span>
+                 <span className={
+                   `text-[10px] font-mono tracking-widest uppercase ` +
+                   (robotBig ? 'text-[#a259e6]/60' : 'text-cyan-400/60')
+                 }>Subspace_Status</span>
                  <div className="flex items-center gap-2">
                     <span className="text-[12px] font-bold text-white uppercase tracking-tighter transition-all">Encrypted_Link</span>
-                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
+                    <div className={
+                      `w-2 h-2 rounded-full animate-pulse ` +
+                      (robotBig
+                        ? 'bg-[#a259e6] shadow-[0_0_8px_#a259e6]'
+                        : 'bg-cyan-400 shadow-[0_0_8px_#22d3ee]')
+                    } />
                  </div>
               </div>
             </motion.header>
@@ -151,20 +189,35 @@ export function SplineSceneBasic() {
             >
                {/* Scroll Indicator */}
                <div className="flex flex-col items-center gap-3">
-                  <span className="text-[8px] font-mono text-cyan-400/40 tracking-[0.5em] uppercase">Scroll to Rotate Orbit</span>
-                  <div className="w-[1px] h-12 bg-gradient-to-t from-cyan-400/60 to-transparent" />
+                  <span className={
+                    `text-[8px] font-mono tracking-[0.5em] uppercase ` +
+                    (robotBig ? 'text-[#a259e6]/40' : 'text-cyan-400/40')
+                  }>Scroll to Rotate Orbit</span>
+                  <div className={
+                    `w-[1px] h-12 bg-gradient-to-t to-transparent ` +
+                    (robotBig ? 'from-[#a259e6]/60' : 'from-cyan-400/60')
+                  } />
                </div>
 
                <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-10 relative overflow-hidden group pointer-events-auto cursor-help">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <div className={
+                    `absolute inset-0 bg-gradient-to-r from-transparent to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ` +
+                    (robotBig ? 'via-[#a259e6]/5' : 'via-cyan-400/5')
+                  } />
                   <div className="flex flex-col items-center">
                      <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Grid_Nodes</span>
-                     <span className="text-xs font-bold text-cyan-400 tracking-widest">PRO_04</span>
+                     <span className={
+                       `text-xs font-bold tracking-widest ` +
+                       (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
+                     }>PRO_04</span>
                   </div>
                   <div className="w-[1px] h-6 bg-white/10" />
                   <div className="flex flex-col items-center">
                      <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Signal</span>
-                     <span className="text-xs font-bold text-cyan-400 tracking-widest text-shadow-glow">OPTIMAL</span>
+                     <span className={
+                       `text-xs font-bold tracking-widest text-shadow-glow ` +
+                       (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
+                     }>OPTIMAL</span>
                   </div>
                </div>
             </motion.footer>
