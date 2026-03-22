@@ -40,27 +40,37 @@ const PROJECTS = [
 interface CurvedMenuProps {
   isSplashFinished: boolean;
   onPortalTrigger: (projectId: string) => void;
+  onLastGridCentered?: (centered: boolean) => void;
 }
 
-export function CurvedMenu({ isSplashFinished, onPortalTrigger }: CurvedMenuProps) {
+export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCentered }: CurvedMenuProps) {
   const rotation = useMotionValue(0);
   const rotationRef = useRef(0);
-  // Rotación infinita real con la rueda del mouse
+  const lastGridWasCentered = useRef(false);
   useEffect(() => {
     const itemSpacing = (typeof window !== 'undefined' && window.innerWidth < 768) ? 55 : 45;
-    const maxRotation = 0; // No puede bajar de 0° (solo subir)
-    // El máximo retroceso es el negativo del ángulo base del primer grid (0)
-    // Si quieres que nunca se pase del primer grid, el máximo es 0
+    const centerThreshold = itemSpacing / 2; // Considera "centro" si está dentro de medio spacing
+    // Limite: hasta el tercer grid + 200px extra
+    const minRotation = -((PROJECTS.length - 1) * itemSpacing + 50);
     const handleWheel = (e: WheelEvent) => {
-      const delta = e.deltaY * 0.12;
-      rotationRef.current = Math.min(maxRotation, rotationRef.current + delta);
+      const delta = e.deltaY * 0.1; // Menor factor para mayor fluidez
+      // Limita la rotación hasta el tercer grid + 200px extra
+      rotationRef.current = Math.max(minRotation, Math.min(0, rotationRef.current + delta));
       rotation.set(rotationRef.current);
+
+      // Detectar si el último grid está centrado
+      const lastGridAngle = (PROJECTS.length - 1) * itemSpacing + rotationRef.current;
+      const isCentered = Math.abs(lastGridAngle) < centerThreshold;
+      if (onLastGridCentered && isCentered !== lastGridWasCentered.current) {
+        onLastGridCentered(isCentered);
+        lastGridWasCentered.current = isCentered;
+      }
     };
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [rotation]);
+  }, [rotation, onLastGridCentered]);
 
   const radius = 900; 
   const perspectiveValue = 1600; 
