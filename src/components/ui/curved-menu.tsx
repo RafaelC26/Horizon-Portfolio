@@ -41,29 +41,30 @@ interface CurvedMenuProps {
   isSplashFinished: boolean;
   onPortalTrigger: (projectId: string) => void;
   onLastGridCentered?: (centered: boolean) => void;
+  onRotationLimit?: (atLimit: boolean) => void;
 }
 
 export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCentered }: CurvedMenuProps) {
   const rotation = useMotionValue(0);
   const rotationRef = useRef(0);
   const lastGridWasCentered = useRef(false);
+  const atLimitRef = useRef(false);
   useEffect(() => {
     const itemSpacing = (typeof window !== 'undefined' && window.innerWidth < 768) ? 55 : 45;
-    const centerThreshold = itemSpacing / 2; // Considera "centro" si está dentro de medio spacing
-    // Limite: hasta el tercer grid + 200px extra
-    const minRotation = -((PROJECTS.length - 1) * itemSpacing + 50);
+    const centerThreshold = 2 + 40; 
+    const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
     const handleWheel = (e: WheelEvent) => {
-      const delta = e.deltaY * 0.1; // Menor factor para mayor fluidez
-      // Limita la rotación hasta el tercer grid + 200px extra
+      const delta = e.deltaY * 0.1; 
+      const prevRotation = rotationRef.current;
       rotationRef.current = Math.max(minRotation, Math.min(0, rotationRef.current + delta));
       rotation.set(rotationRef.current);
 
-      // Detectar si el último grid está centrado
+      // Detectar si el último grid ya pasó el centro
       const lastGridAngle = (PROJECTS.length - 1) * itemSpacing + rotationRef.current;
-      const isCentered = Math.abs(lastGridAngle) < centerThreshold;
-      if (onLastGridCentered && isCentered !== lastGridWasCentered.current) {
-        onLastGridCentered(isCentered);
-        lastGridWasCentered.current = isCentered;
+      const hasPassed = lastGridAngle < -centerThreshold;
+      if (onLastGridCentered && hasPassed !== lastGridWasCentered.current) {
+        onLastGridCentered(!hasPassed);
+        lastGridWasCentered.current = hasPassed;
       }
     };
     window.addEventListener('wheel', handleWheel, { passive: false });

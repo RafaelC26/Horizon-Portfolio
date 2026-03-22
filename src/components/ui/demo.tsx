@@ -20,6 +20,7 @@ import secureVault from "../../assets/secure_vault_preview_1773631940742.png";
 export function SplineSceneBasic() {
   const [isSplashFinished, setIsSplashFinished] = useState(false);
   const [isPortalActive, setIsPortalActive] = useState(false);
+  const [robotBig, setRobotBig] = useState(false);
 
   return (
     <div className="w-full min-h-[1500px] relative bg-[#020617] overflow-x-hidden">
@@ -91,25 +92,32 @@ export function SplineSceneBasic() {
 
           {/* 3D Scene Backdrop - Increased opacity and solid blending to make it clearer */}
           <div className="absolute inset-0 z-10 flex items-center justify-center">
-            <div 
-              className="w-full h-full scale-[1.0] lg:scale-[1.2] opacity-70 pointer-events-auto"
+            <motion.div
+              className="w-full h-full opacity-70 pointer-events-auto"
+              animate={robotBig ? { scale: 2.2, x: '-35%', y: '32%' } : { scale: 1.0, x: 0, y: 0 }}
+              transition={{ type: 'spring', stiffness: 80, damping: 20 }}
               style={{
-                WebkitMaskImage: 'radial-gradient(circle, black 35%, transparent 85%)',
-                maskImage: 'radial-gradient(circle, black 35%, transparent 85%)'
+                WebkitMaskImage: robotBig
+                  ? 'linear-gradient(to right, black 50%, transparent 100%)'
+                  : 'radial-gradient(circle, black 35%, transparent 85%)',
+                maskImage: robotBig
+                  ? 'linear-gradient(to right, black 50%, transparent 100%)'
+                  : 'radial-gradient(circle, black 35%, transparent 85%)',
               }}
             >
-              <SplineScene 
+              <SplineScene
                 scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
                 className="w-full h-full"
               />
-            </div>
+            </motion.div>
           </div>
 
           {/* Orbital Projects Gallery */}
           <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
-            <CurvedMenu 
-              isSplashFinished={isSplashFinished} 
+            <CurvedMenu
+              isSplashFinished={isSplashFinished}
               onPortalTrigger={() => setIsPortalActive(true)}
+              onLastGridCentered={(centered) => setRobotBig(!centered)}
             />
           </div>
 
