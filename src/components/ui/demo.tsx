@@ -12,6 +12,7 @@ import { TextShimmer } from "./text-shimmer";
 import { CurvedMenu } from "./curved-menu";
 import { ProjectCard } from "./project-card";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
+import { TechStackGraph } from "@/components/ui/tech-stack-graph";
 
 // Project Assets
 import cyberDashboard from "../../assets/cyber_dashboard_preview_1773631906924.png";
@@ -25,20 +26,20 @@ export function SplineSceneBasic() {
 
   return (
     <div className="w-full min-h-[1500px] relative bg-[#020617] overflow-x-hidden">
-      
+
       {/* Absolute container that keeps content centered in the viewport */}
       <div className="fixed inset-0 w-full h-screen flex items-center justify-center pointer-events-none">
-        
+
         {/* Warm Alabaster Background Fade-out (Splash) */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-[100] bg-[#F5F5F0] pointer-events-none"
           initial={{ opacity: 1 }}
           animate={{ opacity: isSplashFinished ? 0 : 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }} 
+          transition={{ duration: 2, ease: "easeInOut" }}
         />
 
         {/* Portal Flash Overlay */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-[200] bg-[#020617] pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: isPortalActive ? 1 : 0 }}
@@ -46,22 +47,22 @@ export function SplineSceneBasic() {
         />
 
         {/* Particle Overlay (Centered Splash) */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-[110] flex flex-col items-center justify-center"
           animate={{ opacity: isSplashFinished ? 0 : 1 }}
           transition={{ duration: 1 }}
         >
-          <ParticleText 
-            text="HORIZON" 
-            onComplete={() => setIsSplashFinished(true)} 
+          <ParticleText
+            text="HORIZON"
+            onComplete={() => setIsSplashFinished(true)}
             className="absolute inset-0 w-full h-full"
             particleColor={isSplashFinished ? "white" : "#1A2B3C"}
           />
-          
+
           {/* Loading Indicator beneath HORIZON */}
           <motion.div className="relative mt-[15vh] flex flex-col items-center">
-            <TextShimmer 
-              className='font-mono text-[10px] sm:text-xs tracking-[0.5em] text-[#1A2B3C]/40 [--base-color:rgba(26,43,60,0.3)] [--base-gradient-color:#1A2B3C]' 
+            <TextShimmer
+              className='font-mono text-[10px] sm:text-xs tracking-[0.5em] text-[#1A2B3C]/40 [--base-color:rgba(26,43,60,0.3)] [--base-gradient-color:#1A2B3C]'
               duration={2.5}
             >
               SYSTEM_INITIALIZATION_IN_PROGRESS
@@ -70,11 +71,11 @@ export function SplineSceneBasic() {
         </motion.div>
 
         {/* Main Immersive Layer */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-[1] w-full h-full"
           initial={{ scale: 0.9, opacity: 0, filter: "blur(10px)" }}
-          animate={{ 
-            scale: isSplashFinished ? 1 : 0.9, 
+          animate={{
+            scale: isSplashFinished ? 1 : 0.9,
             opacity: isSplashFinished ? 1 : 0,
             filter: isSplashFinished ? "blur(0px)" : "blur(10px)"
           }}
@@ -90,7 +91,7 @@ export function SplineSceneBasic() {
                 className="absolute inset-0 w-full h-full"
                 style={{ pointerEvents: 'none' }}
               >
-                <NeuralBackground 
+                <NeuralBackground
                   color={robotBig ? "#a259e6" : "#22d3ee"}
                   trailOpacity={0.08}
                   particleCount={400}
@@ -135,13 +136,13 @@ export function SplineSceneBasic() {
             </motion.div>
             {robotBig && (
               <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                
+
               </div>
             )}
           </div>
 
           {/* Orbital Projects Gallery */}
-          <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
             <CurvedMenu
               isSplashFinished={isSplashFinished}
               onPortalTrigger={() => setIsPortalActive(true)}
@@ -149,9 +150,19 @@ export function SplineSceneBasic() {
             />
           </div>
 
+          {/* Floating Tech Stack Node Graph - Shows up when robot is big */}
+          <motion.div
+            className="absolute inset-x-0 inset-y-0 right-0 z-50 pointer-events-none"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: robotBig ? 1 : 0, x: robotBig ? 0 : 100 }}
+            transition={{ duration: 1, ease: 'easeOut', delay: robotBig ? 0.3 : 0 }}
+          >
+            {robotBig && <TechStackGraph />}
+          </motion.div>
+
           {/* Immersive HUD (Overlay Elements) */}
           <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-6 sm:p-10">
-            <motion.header 
+            <motion.header
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : -20 }}
               transition={{ duration: 0.8, delay: 1 }}
@@ -169,19 +180,19 @@ export function SplineSceneBasic() {
                 />
               </div>
               <div className="flex flex-col items-end gap-1">
-                 <span className={
-                   `text-[10px] font-mono tracking-widest uppercase ` +
-                   (robotBig ? 'text-[#a259e6]/60' : 'text-cyan-400/60')
-                 }>Subspace_Status</span>
-                 <div className="flex items-center gap-2">
-                    <span className="text-[12px] font-bold text-white uppercase tracking-tighter transition-all">Encrypted_Link</span>
-                    <div className={
-                      `w-2 h-2 rounded-full animate-pulse ` +
-                      (robotBig
-                        ? 'bg-[#a259e6] shadow-[0_0_8px_#a259e6]'
-                        : 'bg-cyan-400 shadow-[0_0_8px_#22d3ee]')
-                    } />
-                 </div>
+                <span className={
+                  `text-[10px] font-mono tracking-widest uppercase ` +
+                  (robotBig ? 'text-[#a259e6]/60' : 'text-cyan-400/60')
+                }>Subspace_Status</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] font-bold text-white uppercase tracking-tighter transition-all">Encrypted_Link</span>
+                  <div className={
+                    `w-2 h-2 rounded-full animate-pulse ` +
+                    (robotBig
+                      ? 'bg-[#a259e6] shadow-[0_0_8px_#a259e6]'
+                      : 'bg-cyan-400 shadow-[0_0_8px_#22d3ee]')
+                  } />
+                </div>
               </div>
             </motion.header>
 
@@ -192,39 +203,39 @@ export function SplineSceneBasic() {
               transition={{ duration: 1, delay: 1.5 }}
               className="w-full flex flex-col items-center gap-6"
             >
-               {/* Scroll Indicator */}
-               <div className="flex flex-col items-center gap-3">
-                  <span className={
-                    `text-[8px] font-mono tracking-[0.5em] uppercase ` +
-                    (robotBig ? 'text-[#a259e6]/40' : 'text-cyan-400/40')
-                  }>Scroll to Rotate Orbit</span>
-                  <div className={
-                    `w-[1px] h-12 bg-gradient-to-t to-transparent ` +
-                    (robotBig ? 'from-[#a259e6]/60' : 'from-cyan-400/60')
-                  } />
-               </div>
+              {/* Scroll Indicator */}
+              <div className="flex flex-col items-center gap-3">
+                <span className={
+                  `text-[8px] font-mono tracking-[0.5em] uppercase ` +
+                  (robotBig ? 'text-[#a259e6]/40' : 'text-cyan-400/40')
+                }>Scroll to Rotate Orbit</span>
+                <div className={
+                  `w-[1px] h-12 bg-gradient-to-t to-transparent ` +
+                  (robotBig ? 'from-[#a259e6]/60' : 'from-cyan-400/60')
+                } />
+              </div>
 
-               <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-10 relative overflow-hidden group pointer-events-auto cursor-help">
-                  <div className={
-                    `absolute inset-0 bg-gradient-to-r from-transparent to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ` +
-                    (robotBig ? 'via-[#a259e6]/5' : 'via-cyan-400/5')
-                  } />
-                  <div className="flex flex-col items-center">
-                     <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Grid_Nodes</span>
-                     <span className={
-                       `text-xs font-bold tracking-widest ` +
-                       (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
-                     }>PRO_04</span>
-                  </div>
-                  <div className="w-[1px] h-6 bg-white/10" />
-                  <div className="flex flex-col items-center">
-                     <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Signal</span>
-                     <span className={
-                       `text-xs font-bold tracking-widest text-shadow-glow ` +
-                       (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
-                     }>OPTIMAL</span>
-                  </div>
-               </div>
+              <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-10 relative overflow-hidden group pointer-events-auto cursor-help">
+                <div className={
+                  `absolute inset-0 bg-gradient-to-r from-transparent to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ` +
+                  (robotBig ? 'via-[#a259e6]/5' : 'via-cyan-400/5')
+                } />
+                <div className="flex flex-col items-center">
+                  <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Grid_Nodes</span>
+                  <span className={
+                    `text-xs font-bold tracking-widest ` +
+                    (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
+                  }>PRO_04</span>
+                </div>
+                <div className="w-[1px] h-6 bg-white/10" />
+                <div className="flex flex-col items-center">
+                  <span className="text-[8px] font-mono text-white/30 tracking-widest uppercase mb-1">Signal</span>
+                  <span className={
+                    `text-xs font-bold tracking-widest text-shadow-glow ` +
+                    (robotBig ? 'text-[#a259e6]' : 'text-cyan-400')
+                  }>OPTIMAL</span>
+                </div>
+              </div>
             </motion.footer>
 
             {/* Subtle Vignette */}
@@ -240,7 +251,7 @@ export function SplineSceneBasic() {
 export default function DemoOne() {
   return (
     <div className="relative flex h-[650px] w-full flex-col items-center justify-center overflow-hidden rounded-xl">
-      <ShaderAnimation/>
+      <ShaderAnimation />
       <span className="pointer-events-none z-10 text-center text-7xl leading-none font-semibold tracking-tighter whitespace-pre-wrap text-white">
         Shader Lines
       </span>
