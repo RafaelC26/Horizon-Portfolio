@@ -133,6 +133,11 @@ export function SplineSceneBasic() {
                 className="w-full h-full"
               />
             </motion.div>
+            {robotBig && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                
+              </div>
+            )}
           </div>
 
           {/* Orbital Projects Gallery */}

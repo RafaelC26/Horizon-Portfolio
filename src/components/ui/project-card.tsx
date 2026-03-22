@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { User, Cpu, Code, ExternalLink, Users, ShieldAlert, Code2, Globe } from "lucide-react";
 import React, { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
@@ -25,21 +26,21 @@ export function ProjectCard({
   onPortalTrigger
 }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showPortal, setShowPortal] = useState(false);
   const navigate = useNavigate();
   const isCollab = type === 'collab';
 
   const handleVisitProject = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+    setShowPortal(true);
     if (onPortalTrigger) {
       onPortalTrigger();
-      // Delay navigation to let the portal effect be seen
-      setTimeout(() => {
-        const id = title.toLowerCase().replace(/\s+/g, '-');
-        navigate(`/project/${id}`);
-      }, 1500);
     }
+    setTimeout(() => {
+      const id = title.toLowerCase().replace(/\s+/g, '-');
+      navigate(`/project/${id}`);
+    }, 1200);
   };
 
   const accentColor = isCollab ? 'text-violet-400' : 'text-cyan-400';
@@ -64,6 +65,27 @@ export function ProjectCard({
         className
       )}
     >
+      <AnimatePresence>
+        {showPortal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-[#0a0116]/90 backdrop-blur-[2px]"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-[#a259e6] to-[#22d3ee] flex items-center justify-center shadow-2xl"
+            >
+              <span className="text-white text-lg font-bold tracking-widest">PORTAL</span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* HUD Scanline Effect */}
       <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(6,182,212,0.02)_50%)] bg-[length:100%_4px] opacity-20 pointer-events-none" />
 

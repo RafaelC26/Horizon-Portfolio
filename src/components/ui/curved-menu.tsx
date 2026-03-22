@@ -51,7 +51,7 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
   const atLimitRef = useRef(false);
   useEffect(() => {
     const itemSpacing = (typeof window !== 'undefined' && window.innerWidth < 768) ? 55 : 45;
-    const centerThreshold = 2 + 40; 
+    const centerThreshold = 2 + 50; 
     const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
     const handleWheel = (e: WheelEvent) => {
       const delta = e.deltaY * 0.1; 
@@ -73,12 +73,16 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
     };
   }, [rotation, onLastGridCentered]);
 
-  const radius = 900; 
-  const perspectiveValue = 1600; 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const radius = isMobile ? 420 : isTablet ? 650 : 900;
+  const perspectiveValue = isMobile ? 700 : isTablet ? 1100 : 1600;
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
+    <div className={
+      'relative w-full flex items-center justify-center overflow-visible ' +
+      (isMobile ? 'h-[340px]' : isTablet ? 'h-[480px]' : 'h-[600px]')
+    }>
       <motion.div 
         className="relative w-full h-full"
         initial={{ opacity: 0, rotateX: 20 }}
@@ -86,8 +90,11 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
         transition={{ duration: 1.5, delay: 0.8 }}
       >
         <div 
-          className="relative w-full h-full flex items-center justify-center pt-20"
-          style={{ perspective: perspectiveValue, perspectiveOrigin: 'center 40%' }}
+          className={
+            'relative w-full h-full flex items-center justify-center ' +
+            (isMobile ? 'pt-8' : isTablet ? 'pt-14' : 'pt-20')
+          }
+          style={{ perspective: perspectiveValue, perspectiveOrigin: isMobile ? 'center 60%' : 'center 40%' }}
         >
           {PROJECTS.map((project, idx) => {
             const itemSpacing = isMobile ? 55 : 45; 

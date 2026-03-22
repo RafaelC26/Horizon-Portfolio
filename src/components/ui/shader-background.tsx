@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 
 const ShaderBackground = () => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Vertex shader source code
+  // Usar vec2 para aVertexPosition y convertir a vec4 en el shader
   const vsSource = `
-    attribute vec4 aVertexPosition;
+    attribute vec2 aVertexPosition;
     void main() {
-      gl_Position = aVertexPosition;
+      gl_Position = vec4(aVertexPosition, 0.0, 1.0);
     }
   `;
 
@@ -108,8 +109,9 @@ const ShaderBackground = () => {
   `;
 
   // Helper function to compile shader
-  const loadShader = (gl, type, source) => {
+  const loadShader = (gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null => {
     const shader = gl.createShader(type);
+    if (!shader) return null;
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
 
@@ -123,11 +125,13 @@ const ShaderBackground = () => {
   };
 
   // Initialize shader program
-  const initShaderProgram = (gl, vsSource, fsSource) => {
+  const initShaderProgram = (gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram | null => {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    if (!vertexShader || !fragmentShader) return null;
 
     const shaderProgram = gl.createProgram();
+    if (!shaderProgram) return null;
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
     gl.linkProgram(shaderProgram);
@@ -150,7 +154,9 @@ const ShaderBackground = () => {
       return;
     }
 
+
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+    if (!shaderProgram) return;
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     const positions = [
@@ -173,8 +179,11 @@ const ShaderBackground = () => {
     };
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
@@ -182,10 +191,11 @@ const ShaderBackground = () => {
     resizeCanvas();
 
     let startTime = Date.now();
+    let animationId: number;
     const render = () => {
       const currentTime = (Date.now() - startTime) / 1000;
 
-      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clearColor(0.0, 0.0, 0.0, 0.0); // Fondo completamente transparente
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       gl.useProgram(programInfo.program);
@@ -205,13 +215,14 @@ const ShaderBackground = () => {
       gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      requestAnimationFrame(render);
+      animationId = requestAnimationFrame(render);
     };
 
-    requestAnimationFrame(render);
+    animationId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      if (animationId) cancelAnimationFrame(animationId);
     };
   }, []);
 
