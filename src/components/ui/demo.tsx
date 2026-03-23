@@ -26,6 +26,18 @@ export function SplineSceneBasic() {
   const [isPortalActive, setIsPortalActive] = useState(false);
   const [robotBig, setRobotBig] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  const [windowSize, setWindowSize] = useState({ width: 1000, height: 1000 });
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+  
+  const isMobile = windowSize.width < 768;
 
   return (
     <div className="w-full relative bg-black overflow-x-hidden font-sans">
@@ -163,7 +175,11 @@ export function SplineSceneBasic() {
                   'w-full h-full pointer-events-none ' +
                   (robotBig ? 'opacity-100' : 'opacity-70')
                 }
-                animate={robotBig ? { scale: 2.2, x: '-35%', y: '32%' } : { scale: 1.0, x: 0, y: 0 }}
+                animate={
+                  robotBig 
+                    ? (isMobile ? { scale: 1.5, x: '-8%', y: '20%' } : { scale: 2.2, x: '-35%', y: '32%' }) 
+                    : { scale: 1.0, x: 0, y: 0 }
+                }
                 transition={{ type: 'spring', stiffness: 80, damping: 20 }}
                 style={{
                   WebkitMaskImage: robotBig
@@ -207,7 +223,7 @@ export function SplineSceneBasic() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : -20 }}
                 transition={{ duration: 0.8, delay: 1 }}
-                className="w-full flex justify-between items-start pointer-events-auto"
+                className="w-full flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 pointer-events-auto"
               >
                 <div className="flex flex-col">
                   <h1 className="text-xl sm:text-2xl font-extrabold tracking-tighter text-white/90">HORIZON</h1>
@@ -220,7 +236,7 @@ export function SplineSceneBasic() {
                     }
                   />
                 </div>
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-col items-start sm:items-end gap-1">
                   <span className={
                     `text-[10px] font-mono tracking-widest uppercase ` +
                     (robotBig ? 'text-[#a259e6]/60' : 'text-cyan-400/60')
@@ -256,7 +272,7 @@ export function SplineSceneBasic() {
                   } />
                 </div>
 
-                <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-10 relative overflow-hidden group pointer-events-auto cursor-help">
+                <div className="w-full max-w-xl h-14 bg-black/40 backdrop-blur-3xl border border-white/5 rounded-full flex items-center justify-around px-4 sm:px-10 relative overflow-hidden group pointer-events-auto cursor-help">
                   <div className={
                     `absolute inset-0 bg-gradient-to-r from-transparent to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ` +
                     (robotBig ? 'via-[#a259e6]/5' : 'via-cyan-400/5')

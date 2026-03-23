@@ -47,22 +47,28 @@ interface CurvedMenuProps {
 
 export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCentered, scrollContainerRef }: CurvedMenuProps) {
   const { scrollY } = useScroll({ container: scrollContainerRef });
-  const [windowHeight, setWindowHeight] = useState(1000);
+  const [windowSize, setWindowSize] = useState({ width: 1000, height: 1000 });
   const lastGridWasCentered = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setWindowHeight(window.innerHeight);
-      const handleResize = () => setWindowHeight(window.innerHeight);
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
-
-  const itemSpacing = isMobile ? 55 : 45;
+  const getMenuMetrics = () => {
+    const w = windowSize.width;
+    if (w < 480) return { radius: 380, perspectiveValue: 600, spacing: 60 };
+    if (w < 640) return { radius: 420, perspectiveValue: 700, spacing: 55 };
+    if (w < 768) return { radius: 500, perspectiveValue: 850, spacing: 50 };
+    if (w < 1024) return { radius: 650, perspectiveValue: 1100, spacing: 45 };
+    return { radius: 900, perspectiveValue: 1600, spacing: 45 };
+  };
+  
+  const { radius, perspectiveValue, spacing: itemSpacing } = getMenuMetrics();
   const centerThreshold = 2 + 50;
   const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
 
@@ -95,13 +101,10 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
     return () => unsubscribe();
   }, [rotation, onLastGridCentered, itemSpacing, centerThreshold]);
 
-  const radius = isMobile ? 420 : isTablet ? 650 : 900;
-  const perspectiveValue = isMobile ? 700 : isTablet ? 1100 : 1600;
-
   return (
     <div className={
       'relative w-full flex items-center justify-center overflow-visible ' +
-      (isMobile ? 'h-[340px]' : isTablet ? 'h-[480px]' : 'h-[600px]')
+      (windowSize.width < 640 ? 'h-[340px]' : windowSize.width < 1024 ? 'h-[480px]' : 'h-[600px]')
     }>
       <motion.div
         className="relative w-full h-full"
@@ -112,12 +115,11 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
         <div
           className={
             'relative w-full h-full flex items-center justify-center ' +
-            (isMobile ? 'pt-8' : isTablet ? 'pt-14' : 'pt-20')
+            (windowSize.width < 640 ? 'pt-8' : windowSize.width < 1024 ? 'pt-14' : 'pt-20')
           }
-          style={{ perspective: perspectiveValue, perspectiveOrigin: isMobile ? 'center 60%' : 'center 40%' }}
+          style={{ perspective: perspectiveValue, perspectiveOrigin: windowSize.width < 768 ? 'center 60%' : 'center 40%' }}
         >
           {PROJECTS.map((project, idx) => {
-            const itemSpacing = isMobile ? 55 : 45;
             const baseAngle = idx * itemSpacing;
             const isLast = idx === PROJECTS.length - 1;
             return (

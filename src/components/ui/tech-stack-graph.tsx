@@ -178,7 +178,7 @@ export function TechStackGraph() {
   return (
     <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-end overflow-hidden">
       <div
-        className="relative w-[1400px] h-[1100px] origin-right scale-[0.5] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 translate-x-[5%] -translate-y-[5%]"
+        className="relative w-[1400px] h-[1100px] origin-right scale-[0.35] sm:scale-[0.45] md:scale-[0.55] lg:scale-[0.7] xl:scale-100 translate-x-[15%] sm:translate-x-[10%] md:translate-x-[5%] xl:-translate-x-[5%] -translate-y-[5%]"
       >
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
           {connections.map((conn, idx) => {
