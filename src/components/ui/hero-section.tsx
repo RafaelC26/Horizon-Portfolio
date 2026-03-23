@@ -9,10 +9,10 @@ export function HeroSection({
     { href: "#", label: "About" },
     { href: "#", label: "Contact" },
   ],
-  titleLine1 = "Experience",
-  titleLine2 = "The Future",
-  subtitle = "Redefining the boundaries between technology and human expression.",
-  ctaText = "Explore The Collection",
+  titleLine1 = "BEYOND",
+  titleLine2 = "REALITY",
+  subtitle = "Experimenta la convergencia entre el código puro y la conciencia humana. Rediseñando los límites del espacio digital.",
+  ctaText = "INICIAR SECUENCIA",
   bottomLeftText = "03. Aura",
   onExplore,
 }: {
@@ -60,19 +60,22 @@ export function HeroSection({
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-            className="text-6xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.1] tracking-tight mb-6"
+            className="text-6xl md:text-7xl lg:text-[6rem] font-black leading-[0.9] tracking-tighter mb-6 flex flex-col"
           >
-            {titleLine1} <br /> {titleLine2}
+            <span className="text-white uppercase">{titleLine1}</span>
+            <span className="text-transparent uppercase [-webkit-text-stroke:2px_white]">{titleLine2}</span>
           </motion.h1>
           
-          <motion.p 
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="text-gray-300/80 text-lg md:text-xl font-light max-w-sm mb-10 leading-relaxed"
+            className="border-l-[3px] border-white/20 pl-5 mb-10"
           >
-            {subtitle}
-          </motion.p>
+            <p className="text-gray-300 text-base md:text-lg font-light italic max-w-md leading-relaxed">
+              {subtitle}
+            </p>
+          </motion.div>
           
           <motion.div
            initial={{ opacity: 0, y: 20 }}
@@ -82,7 +85,7 @@ export function HeroSection({
           >
             <button 
               onClick={onExplore}
-              className="bg-white text-black font-semibold text-[15px] px-8 py-3.5 rounded-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/5"
+              className="bg-white text-black font-black text-xs md:text-sm tracking-tighter uppercase px-12 py-5 hover:bg-gray-200 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/5"
             >
               {ctaText}
             </button>

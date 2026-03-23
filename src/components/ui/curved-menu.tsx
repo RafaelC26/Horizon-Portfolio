@@ -42,39 +42,59 @@ interface CurvedMenuProps {
   onPortalTrigger: (projectId: string) => void;
   onLastGridCentered?: (centered: boolean) => void;
   onRotationLimit?: (atLimit: boolean) => void;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCentered }: CurvedMenuProps) {
-  const rotation = useMotionValue(0);
-  const rotationRef = useRef(0);
+export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCentered, scrollContainerRef }: CurvedMenuProps) {
+  const { scrollY } = useScroll({ container: scrollContainerRef });
+  const [windowHeight, setWindowHeight] = useState(1000);
   const lastGridWasCentered = useRef(false);
-  const atLimitRef = useRef(false);
-  useEffect(() => {
-    const itemSpacing = (typeof window !== 'undefined' && window.innerWidth < 768) ? 55 : 45;
-    const centerThreshold = 2 + 50; 
-    const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
-    const handleWheel = (e: WheelEvent) => {
-      const delta = -e.deltaY * 0.1; 
-      const prevRotation = rotationRef.current;
-      rotationRef.current = Math.max(minRotation, Math.min(0, rotationRef.current + delta));
-      rotation.set(rotationRef.current);
 
-      // Detectar si el último grid ya pasó el centro
-      const lastGridAngle = (PROJECTS.length - 1) * itemSpacing + rotationRef.current;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowHeight(window.innerHeight);
+      const handleResize = () => setWindowHeight(window.innerHeight);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+  const itemSpacing = isMobile ? 55 : 45;
+  const centerThreshold = 2 + 50;
+  const minRotation = -((PROJECTS.length - 1) * itemSpacing + 100);
+
+  // Map the internal container scroll to the 3D rotation
+  // Since it's an internal scroll view, scroll starts at 0 and goes to exactly 1500 based on the demo.tsx spacer
+  const rawRotation = useTransform(
+    scrollY,
+    [0, 1500],
+    [0, minRotation],
+    { clamp: true }
+  );
+
+  // Apply a gentle spring to smooth out standard mouse wheel step-scrolling natively
+  const rotation = useSpring(rawRotation, {
+    stiffness: 100,
+    damping: 30,
+    mass: 0.5
+  });
+
+  // Detect when the last grid is centered to trigger the robot zoom
+  useEffect(() => {
+    const unsubscribe = rotation.on("change", (v) => {
+      const lastGridAngle = (PROJECTS.length - 1) * itemSpacing + v;
       const hasPassed = lastGridAngle < -centerThreshold;
       if (onLastGridCentered && hasPassed !== lastGridWasCentered.current) {
         onLastGridCentered(!hasPassed);
         lastGridWasCentered.current = hasPassed;
       }
-    };
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-    };
-  }, [rotation, onLastGridCentered]);
+    });
+    return () => unsubscribe();
+  }, [rotation, onLastGridCentered, itemSpacing, centerThreshold]);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
   const radius = isMobile ? 420 : isTablet ? 650 : 900;
   const perspectiveValue = isMobile ? 700 : isTablet ? 1100 : 1600;
 
@@ -83,13 +103,13 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
       'relative w-full flex items-center justify-center overflow-visible ' +
       (isMobile ? 'h-[340px]' : isTablet ? 'h-[480px]' : 'h-[600px]')
     }>
-      <motion.div 
+      <motion.div
         className="relative w-full h-full"
         initial={{ opacity: 0, rotateX: 20 }}
         animate={{ opacity: isSplashFinished ? 1 : 0, rotateX: 0 }}
         transition={{ duration: 1.5, delay: 0.8 }}
       >
-        <div 
+        <div
           className={
             'relative w-full h-full flex items-center justify-center ' +
             (isMobile ? 'pt-8' : isTablet ? 'pt-14' : 'pt-20')
@@ -97,15 +117,15 @@ export function CurvedMenu({ isSplashFinished, onPortalTrigger, onLastGridCenter
           style={{ perspective: perspectiveValue, perspectiveOrigin: isMobile ? 'center 60%' : 'center 40%' }}
         >
           {PROJECTS.map((project, idx) => {
-            const itemSpacing = isMobile ? 55 : 45; 
+            const itemSpacing = isMobile ? 55 : 45;
             const baseAngle = idx * itemSpacing;
             const isLast = idx === PROJECTS.length - 1;
             return (
-              <ProjectMenuItem 
-                key={idx} 
-                project={project} 
-                baseAngle={baseAngle} 
-                scrollRotation={rotation} 
+              <ProjectMenuItem
+                key={idx}
+                project={project}
+                baseAngle={baseAngle}
+                scrollRotation={rotation}
                 radius={radius}
                 onPortalTrigger={onPortalTrigger}
                 isLast={isLast}
@@ -139,8 +159,8 @@ function ProjectMenuItem({ project, baseAngle, scrollRotation, radius, onPortalT
       }}
       className="flex items-center justify-center pointer-events-auto"
     >
-      <ProjectCard 
-        {...project} 
+      <ProjectCard
+        {...project}
         onPortalTrigger={() => onPortalTrigger(project.id)}
         data-project-last={isLast ? 'true' : undefined}
       />
