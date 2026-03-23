@@ -11,6 +11,7 @@ import ParticleText from "./particle-text";
 import { TextShimmer } from "./text-shimmer";
 import { CurvedMenu } from "./curved-menu";
 import { ProjectCard } from "./project-card";
+import { HeroSection } from "./hero-section";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
 import { TechStackGraph } from "@/components/ui/tech-stack-graph";
 
@@ -21,6 +22,7 @@ import secureVault from "../../assets/secure_vault_preview_1773631940742.png";
 
 export function SplineSceneBasic() {
   const [isSplashFinished, setIsSplashFinished] = useState(false);
+  const [isHeroFinished, setIsHeroFinished] = useState(false);
   const [isPortalActive, setIsPortalActive] = useState(false);
   const [robotBig, setRobotBig] = useState(false);
 
@@ -144,7 +146,7 @@ export function SplineSceneBasic() {
           {/* Orbital Projects Gallery */}
           <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
             <CurvedMenu
-              isSplashFinished={isSplashFinished}
+              isSplashFinished={isHeroFinished}
               onPortalTrigger={() => setIsPortalActive(true)}
               onLastGridCentered={(centered) => setRobotBig(!centered)}
             />
@@ -160,12 +162,34 @@ export function SplineSceneBasic() {
             {robotBig && <TechStackGraph />}
           </motion.div>
 
+          {/* NEW SPLINE SECTION (INTERMEDIATE HERO) */}
+          <motion.div 
+            className="absolute inset-0 z-[60] bg-black pointer-events-none overflow-hidden flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: (isSplashFinished && !isHeroFinished) ? 1 : 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            {isSplashFinished && !isHeroFinished && (
+              <div className="absolute inset-0 pointer-events-auto flex items-center justify-center">
+                <div className="w-[120vw] h-[120vh] min-w-[120vw] min-h-[120vh] flex items-center justify-center transform scale-[1.1] sm:scale-[1.15] md:scale-125 origin-center">
+                  <SplineScene 
+                    scene="https://prod.spline.design/pWL7xNzp7uAdADPI/scene.splinecode" 
+                    className="w-full h-full"
+                  />
+                </div>
+                
+                {/* Hero Section Overlay */}
+                <HeroSection onExplore={() => setIsHeroFinished(true)} />
+              </div>
+            )}
+          </motion.div>
+
           {/* Immersive HUD (Overlay Elements) */}
           <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-6 sm:p-10">
             <motion.header
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : -20 }}
-              transition={{ duration: 0.8, delay: 1 }}
+              animate={{ opacity: isHeroFinished ? 1 : 0, y: isHeroFinished ? 0 : -20 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
               className="w-full flex justify-between items-start pointer-events-auto"
             >
               <div className="flex flex-col">
@@ -199,8 +223,8 @@ export function SplineSceneBasic() {
             {/* Bottom Status Layer */}
             <motion.footer
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: isSplashFinished ? 1 : 0, y: isSplashFinished ? 0 : 30 }}
-              transition={{ duration: 1, delay: 1.5 }}
+              animate={{ opacity: isHeroFinished ? 1 : 0, y: isHeroFinished ? 0 : 30 }}
+              transition={{ duration: 1, delay: 1 }}
               className="w-full flex flex-col items-center gap-6"
             >
               {/* Scroll Indicator */}
